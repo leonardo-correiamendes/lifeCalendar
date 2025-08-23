@@ -1,5 +1,7 @@
 <template>
-  <LifeCalendar></LifeCalendar>
+  <div class="font-sans">
+    <LifeCalendar></LifeCalendar>
+  </div>
 </template>
 
 <script setup lang="ts">
