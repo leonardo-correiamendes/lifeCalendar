@@ -115,7 +115,8 @@
                                     v-for="week in year.weeks"
                                     :key="`${year.year}-${week.week}`"
                                     :class="[
-                                        'h-[var(--cell)] w-[var(--cell)] rounded-sm opacity-0 animate-appear',
+                                        'h-[var(--cell)] w-[var(--cell)] rounded-sm',
+                                        ((year.year -1) * weeksPerYear + week.week) < animationCutOff ? 'opacity-0 animate-appear' : '',
                                         (year.year - 1) * weeksPerYear +
                                             week.week <=
                                         livedWeeks
@@ -213,6 +214,8 @@ const ageExact = computed(() => {
     const { y, m, d } = diffYMD(birth, new Date());
     return { y, m, d };
 });
+    
+const animationCutOff = 52 * 15;
 </script>
 
 <style scoped>
