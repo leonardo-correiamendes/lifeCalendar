@@ -1,4 +1,3 @@
-// composables/usePersistedRef.ts
 import { ref, watch } from "vue";
 export function usePersistedRef<T>(key: string, initial: T) {
     const v = ref<T>(initial);

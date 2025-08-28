@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDark } from "../composables/useDark"; // ajuste le chemin si besoin
+import { useDark } from "../composables/useDark"; 
 const { mode } = useDark(); // 'light' | 'dark' | 'system'
 </script>
 

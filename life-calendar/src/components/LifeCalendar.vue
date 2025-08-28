@@ -6,7 +6,6 @@
             class="w-full max-w-5xl bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
         >
             <div class="flex flex-col gap-6">
-                <!-- Theme toggle -->
                 <div class="flex items-center gap-2 ml-auto">
                     <label class="text-xs text-gray-500 dark:text-gray-400"
                         >Thème</label
@@ -14,7 +13,6 @@
                     <ThemeToggle />
                 </div>
 
-                <!-- Date -->
                 <div>
                     <label
                         for="birth"
@@ -30,7 +28,6 @@
                     />
                 </div>
 
-                <!-- Résumé -->
                 <div
                     class="max-w-md mx-auto px-4 py-6 bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700"
                 >
@@ -81,7 +78,6 @@
                     </div>
                 </div>
 
-                <!-- Grilles -->
                 <div
                     class="p-4 bg-gray-50 dark:bg-gray-900/40 rounded-md border border-gray-200 dark:border-gray-700 space-y-6"
                 >
@@ -145,6 +141,7 @@
 import { computed } from "vue"; 
 import ThemeToggle from "@/components/ThemeToggle.vue";
 import { usePersistedRef } from "../composables/usePersistedRef.ts";
+import { useNow } from "../composables/useNow.ts";
 
 
 const maxAge = 90;
@@ -154,10 +151,13 @@ const today = new Date();
 const totalWeeks = maxAge * weeksPerYear;
 
 const msPerWeek = 1000 * 60 * 60 * 24 * 7;
+
+const now = useNow();
+
 const livedWeeks = computed(() => {
     const birth = new Date(birthDate.value);
     if (isNaN(birth.getTime())) return 0;
-    return Math.floor((today.getTime() - birth.getTime()) / msPerWeek);
+    return Math.floor((now.value - birth.getTime()) / msPerWeek);
 });
 
 const weeksRemaining = computed(() => {
