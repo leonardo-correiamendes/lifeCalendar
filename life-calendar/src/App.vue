@@ -1,6 +1,6 @@
 <template>
   <div class="font-sans">
-    <LifeCalendar></LifeCalendar>
+    <LifeCalendar />
   </div>
 </template>
 
