@@ -49,7 +49,6 @@
                     </div>
                     <div
                         class="text-sm text-gray-800 dark:text-gray-100 space-y-2"
-                        aria-live="polite"
                     >
                         <p>
                             <strong>{{ livedWeeks }}</strong> semaines vécues
