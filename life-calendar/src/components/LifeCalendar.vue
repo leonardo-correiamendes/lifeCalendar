@@ -6,6 +6,7 @@
             class="w-full max-w-5xl bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
         >
             <div class="flex flex-col gap-6">
+                <!-- Thème -->
                 <div class="flex items-center gap-2 ml-auto">
                     <label class="text-xs text-gray-500 dark:text-gray-400"
                         >Thème</label
@@ -13,21 +14,26 @@
                     <ThemeToggle />
                 </div>
 
+                <!-- Saisie date de naissance -->
                 <div>
                     <label
                         for="birth"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
-                        >Date de naissance</label
                     >
+                        Date de naissance
+                    </label>
                     <input
+                        id="birth"
                         type="date"
-                        v-model="birthDate"
-                        :max="today.toISOString().split('T')[0]"
-                        :min="'1930-01-01'"
+                        v-model="birthDateInput"
+                        :max="todayStr"
+                        :min="minBirthStr"
+                        @change="onBirthInputChange"
                         class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 p-2 rounded max-w-xs"
                     />
                 </div>
 
+                <!-- Stats -->
                 <div
                     class="max-w-md mx-auto px-4 py-6 bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700"
                 >
@@ -46,7 +52,18 @@
                                 >Semaines à venir</span
                             >
                         </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 relative">
+                                <span
+                                    class="absolute inset-0 border border-amber-400"
+                                ></span>
+                            </div>
+                            <span class="text-gray-700 dark:text-gray-200"
+                                >Jalon</span
+                            >
+                        </div>
                     </div>
+
                     <div
                         class="text-sm text-gray-800 dark:text-gray-100 space-y-2"
                     >
@@ -58,9 +75,10 @@
                             restantes
                         </p>
                         <p>
-                            <strong>{{ lifePercentage }}%</strong> de ta vie
-                            potentielle déjà vécue
+                            <strong>{{ lifePercentage }}</strong
+                            >% de ta vie potentielle déjà vécue
                         </p>
+
                         <div
                             class="h-2 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden"
                         >
@@ -69,6 +87,7 @@
                                 :style="{ width: lifePct + '%' }"
                             ></div>
                         </div>
+
                         <p>
                             <strong>{{ ageExact?.y }}</strong> ans,
                             <strong>{{ ageExact?.m }}</strong> mois,
@@ -77,6 +96,48 @@
                     </div>
                 </div>
 
+                <!-- ÉDITEUR MILESTONES -->
+                <MilestoneForm
+                    :total-weeks="totalWeeks"
+                    @add="onAddMilestone"
+                />
+
+                <!-- Liste Milestones -->
+                <div v-if="milestones.length" class="max-w-md mx-auto w-full">
+                    <h3
+                        class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2"
+                    >
+                        Jalons
+                    </h3>
+                    <ul class="space-y-2">
+                        <li
+                            v-for="m in milestones"
+                            :key="m.id"
+                            class="flex items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2"
+                        >
+                            <div class="text-sm">
+                                <div
+                                    class="font-medium text-gray-800 dark:text-gray-100"
+                                >
+                                    {{ m.label }}
+                                </div>
+                                <div
+                                    class="text-xs text-gray-500 dark:text-gray-400"
+                                >
+                                    Semaine {{ m.weekIndex }}
+                                </div>
+                            </div>
+                            <button
+                                class="text-xs px-2 py-1 rounded-md border border-red-300/50 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                @click="removeMilestone(m.id)"
+                            >
+                                Supprimer
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- CALENDRIER -->
                 <div
                     class="p-4 bg-gray-50 dark:bg-gray-900/40 rounded-md border border-gray-200 dark:border-gray-700 space-y-6"
                 >
@@ -114,19 +175,35 @@
                                     v-for="week in year.weeks"
                                     :key="`${year.year}-${week.week}`"
                                     :class="[
-                                        'h-[var(--cell)] w-[var(--cell)] rounded-sm',
-                                        ((year.year -1) * weeksPerYear + week.week) < animationCutOff ? 'opacity-0 animate-appear' : '',
+                                        'h-[var(--cell)] w-[var(--cell)] rounded-sm box-content relative',
+                                        (year.year - 1) * weeksPerYear +
+                                            week.week <
+                                        animationCutOff
+                                            ? 'opacity-0 animate-appear'
+                                            : '',
                                         (year.year - 1) * weeksPerYear +
                                             week.week <=
                                         livedWeeks
                                             ? 'bg-teal-600'
                                             : 'bg-neutral-300 dark:bg-neutral-600',
+                                        milestoneSet.has(
+                                            (year.year - 1) * weeksPerYear +
+                                                week.week
+                                        )
+                                            ? 'after:absolute after:inset-0 after:border after:border-amber-400 after:pointer-events-none'
+                                            : '',
                                     ]"
                                     :style="{
                                         animationDelay: `${
                                             year.year * week.week * 0.0005
                                         }s`,
                                     }"
+                                    :title="
+                                        milestoneLabelMap.get(
+                                            (year.year - 1) * weeksPerYear +
+                                                week.week
+                                        ) || ''
+                                    "
                                 />
                             </div>
                         </div>
@@ -138,20 +215,40 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"; 
+import { computed, ref } from "vue";
 import ThemeToggle from "@/components/ThemeToggle.vue";
-import { usePersistedRef } from "../composables/usePersistedRef.ts";
-import { useNow } from "../composables/useNow.ts";
-
+import { usePersistedRef } from "../composables/usePersistedRef";
+import { useNow } from "../composables/useNow";
+import MilestoneForm from "@/components/MilestoneForm.vue";
+import { useMilestones } from "../composables/useMilestones";
 
 const maxAge = 90;
 const weeksPerYear = 52;
-const birthDate = usePersistedRef<string>("lc.birthdate", "");
-const today = new Date();
-const totalWeeks = maxAge * weeksPerYear;
-
 const msPerWeek = 1000 * 60 * 60 * 24 * 7;
 
+const minBirthStr = "1930-01-01";
+const today = new Date();
+const todayStr = today.toISOString().split("T")[0];
+
+const birthDate = usePersistedRef<string>("lc.birthdate", "");
+const birthDateInput = ref(birthDate.value); // buffer input pour clamp à la validation
+
+function clampDateStr(iso: string): string {
+    const min = new Date(minBirthStr);
+    const max = new Date(todayStr);
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    if (d < min) return minBirthStr;
+    if (d > max) return todayStr;
+    return iso;
+}
+function onBirthInputChange() {
+    const clamped = clampDateStr(birthDateInput.value);
+    birthDateInput.value = clamped;
+    birthDate.value = clamped;
+}
+
+const totalWeeks = maxAge * weeksPerYear;
 const now = useNow();
 
 const livedWeeks = computed(() => {
@@ -161,37 +258,35 @@ const livedWeeks = computed(() => {
 });
 
 const weeksRemaining = computed(() => {
-    Math.max(0, totalWeeks - livedWeeks.value);
+    return Math.max(0, totalWeeks - livedWeeks.value);
 });
 
 const lifePercentageNumber = computed(
     () => (livedWeeks.value / totalWeeks) * 100
 );
-
 const lifePercentage = computed(() => lifePercentageNumber.value.toFixed(1));
+const lifePct = computed(() =>
+    Math.max(0, Math.min(100, lifePercentageNumber.value))
+);
 
-const lifePct = computed(() => Math.max(0, Math.min(100, lifePercentageNumber.value)));
-
-const lifeCalendar = Array.from({ length: maxAge }, (_, yearIndex) => {
-    return {
+// Grille années/semaines
+const lifeCalendar = Array.from({ length: maxAge }, (_, yearIndex) => ({
+    year: yearIndex + 1,
+    weeks: Array.from({ length: weeksPerYear }, (_, weekIndex) => ({
         year: yearIndex + 1,
-        weeks: Array.from({ length: weeksPerYear }, (_, weekIndex) => {
-            return {
-                year: yearIndex + 1,
-                week: weekIndex + 1,
-            };
-        }),
-    };
-});
+        week: weekIndex + 1,
+    })),
+}));
 
 const decades = computed(() => {
-    const result = [];
+    const result: (typeof lifeCalendar)[] = [];
     for (let i = 0; i < maxAge; i += 10) {
         result.push(lifeCalendar.slice(i, i + 10));
     }
     return result;
 });
 
+// Âge exact
 function diffYMD(from: Date, to: Date) {
     let y = to.getFullYear() - from.getFullYear();
     let m = to.getMonth() - from.getMonth();
@@ -206,15 +301,30 @@ function diffYMD(from: Date, to: Date) {
     }
     return { y, m, d };
 }
-
 const ageExact = computed(() => {
     const birth = new Date(birthDate.value);
     if (isNaN(birth.getTime())) return null;
     const { y, m, d } = diffYMD(birth, new Date());
     return { y, m, d };
 });
-    
+
 const animationCutOff = 52 * 15;
+
+// ==== Milestones (jalons) ====
+const { milestones, milestoneSet, addMilestone, removeMilestone } =
+    useMilestones();
+
+function onAddMilestone(p: { label: string; weekIndex: number }) {
+    addMilestone(p.label, p.weekIndex);
+}
+
+const milestoneLabelMap = computed(() => {
+    const map = new Map<number, string>();
+    for (const x of milestones.value) {
+        map.set(x.weekIndex, x.label);
+    }
+    return map;
+});
 </script>
 
 <style scoped>
@@ -228,7 +338,6 @@ const animationCutOff = 52 * 15;
         transform: scale(1);
     }
 }
-
 .animate-appear {
     animation: appear 0.3s ease-out forwards;
 }

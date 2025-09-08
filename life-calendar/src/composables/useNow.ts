@@ -1,6 +1,6 @@
 import { onBeforeMount, onMounted, ref } from "vue";
 
-export function useNow(intervalMs = 60_00) {
+export function useNow(intervalMs = 60_000) {
     const now = ref(Date.now());
     let timer: number | undefined;
 
