@@ -55,7 +55,7 @@
                         <div class="flex items-center gap-2">
                             <div class="w-4 h-4 relative">
                                 <span
-                                    class="absolute inset-0 border border-amber-400"
+                                    class="absolute inset-0 border border-red-400 dark:border-amber-400"
                                 ></span>
                             </div>
                             <span class="text-gray-700 dark:text-gray-200"
@@ -68,7 +68,8 @@
                         class="text-sm text-gray-800 dark:text-gray-100 space-y-2"
                     >
                         <p>
-                            <strong>{{ livedWeeks }}</strong> semaines vécues
+                            <strong>{{ ageExact?.weeks }}</strong> semaines
+                            vécues
                         </p>
                         <p>
                             <strong>{{ weeksRemaining }}</strong> semaines
@@ -88,10 +89,15 @@
                             ></div>
                         </div>
 
-                        <p>
-                            <strong>{{ ageExact?.y }}</strong> ans,
+                        <p v-if="ageExact">
+                            Tu as vécu exactement
+                            <strong>{{ ageExact?.y }}</strong> an(s),
                             <strong>{{ ageExact?.m }}</strong> mois,
-                            <strong>{{ ageExact?.d }}</strong> jours déjà vécus
+                            <strong>{{ ageExact?.weeks }}</strong> semaine(s),
+                            <strong>{{ ageExact?.d }}</strong> jour(s),
+                            <strong>{{ ageExact?.hours }}</strong> heure(s),
+                            <strong>{{ ageExact?.minutes }}</strong> minute(s) et
+                            <strong>{{ ageExact?.seconds }}</strong> seconde(s).
                         </p>
                     </div>
                 </div>
@@ -190,7 +196,7 @@
                                             (year.year - 1) * weeksPerYear +
                                                 week.week
                                         )
-                                            ? 'after:absolute after:inset-0 after:border after:border-amber-400 after:pointer-events-none'
+                                            ? 'after:absolute after:inset-0 after:border after:pointer-events-none after:rounded-none after:border-red-600 dark:after:border-amber-400'
                                             : '',
                                     ]"
                                     :style="{
@@ -249,7 +255,7 @@ function onBirthInputChange() {
 }
 
 const totalWeeks = maxAge * weeksPerYear;
-const now = useNow();
+const now = useNow(1_000); // mise à jour chaque seconde
 
 const livedWeeks = computed(() => {
     const birth = new Date(birthDate.value);
@@ -304,8 +310,28 @@ function diffYMD(from: Date, to: Date) {
 const ageExact = computed(() => {
     const birth = new Date(birthDate.value);
     if (isNaN(birth.getTime())) return null;
-    const { y, m, d } = diffYMD(birth, new Date());
-    return { y, m, d };
+
+    const today = new Date(now.value);
+    const { y, m, d } = diffYMD(birth, today);
+
+    const anchor = new Date(birth);
+    anchor.setFullYear(birth.getFullYear() + y);
+    anchor.setMonth(birth.getMonth() + m);
+    anchor.setDate(birth.getDate() + d);
+
+    // Reste < 24h -> h/min/sec "horloge"
+    let rem = today.getTime() - anchor.getTime();
+    if (rem < 0) rem = 0; // sécurité
+
+    const hours = Math.floor(rem / 3_600_000);
+    rem -= hours * 3_600_000;
+    const minutes = Math.floor(rem / 60_000);
+    rem -= minutes * 60_000;
+    const seconds = Math.floor(rem / 1_000);
+
+    const weeks = Math.floor((today.getTime() - birth.getTime()) / msPerWeek);
+
+    return { y, m, d, weeks, hours, minutes, seconds };
 });
 
 const animationCutOff = 52 * 15;
