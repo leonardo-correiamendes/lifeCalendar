@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeCalendar | Leonardo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      const key = 'lc.theme';
+      const saved = localStorage.getItem(key) || 'system';
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = saved === 'dark' || (saved === 'system' && prefersDark);
+      const root = document.documentElement;
+      if (isDark) root.classList.add('dark'); else root.classList.remove('dark');
+    })();
+  </script>
+  <script type="module" crossorigin src="/assets/index-Rn1dOxdo.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-bu3jljKG.css">
+</head>
+
+<body>
+  <div id="app"></div>
+</body>
+
+</html>
