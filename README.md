@@ -1,5 +1,7 @@
 # 📅 LifeCalendar — Vue 3 / TailwindCSS
 
+La version en ligne des disponible sur [lifecalendar.leonardocm.fr](https://lifecalendar.leonardocm.fr)
+
 Un outil de visualisation de vie sous forme de **calendrier existentiel**, basé sur l’idée des **semaines vécues**.  
 Chaque carré représente une semaine de vie : explorez et prenez du recul sur le temps qui passe.
 
