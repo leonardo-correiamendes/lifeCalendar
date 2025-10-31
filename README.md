@@ -1,4 +1,4 @@
-# 📅 LifeCalendar — Vue 3 / TailwindCSS
+# 📅 LifeCalendar - Vue 3 / TailwindCSS
 
 La version en ligne des disponible sur [lifecalendar.leonardocm.fr](https://lifecalendar.leonardocm.fr)
 
